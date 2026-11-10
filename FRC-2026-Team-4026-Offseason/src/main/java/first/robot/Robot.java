@@ -4,18 +4,38 @@
 
 package first.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.wpilib.command3.Scheduler;
 import org.wpilib.command3.button.CommandGamepad;
 import org.wpilib.framework.OpModeRobot;
 import first.robot.constants.DriverConstants;
 import first.robot.mechanisms.ExampleMechanism;
 
-public class Robot extends OpModeRobot {
+public class Robot extends LoggedRobot {
   final ExampleMechanism exampleMechanism = new ExampleMechanism();
   final CommandGamepad exampleController =
       new CommandGamepad(DriverConstants.DRIVER_CONTROLLER_PORT);
 
-  public Robot() {}
+  public Robot() {
+    Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
+
+if (isReal()) {
+    Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+    Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+} else {
+    setUseTiming(false); // Run as fast as possible
+    String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+    Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+    Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+}
+
+Logger.start(); 
+  }
 
   @Override
   public void robotPeriodic() {
