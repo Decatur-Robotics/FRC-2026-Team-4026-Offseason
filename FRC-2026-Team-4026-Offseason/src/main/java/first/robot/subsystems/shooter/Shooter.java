@@ -20,12 +20,21 @@ public class Shooter implements Mechanism{
         return inputs.data.voltage();
     }
 
-    // public Command setVoltageCommand(double voltage){
-    //     return run(coroutine -> {
-    //         while(true){
-    //             io.setVoltage(voltage);
-    //             coroutine.yield();
-    //         }
-    //     })
-    // }
+    public Command setVoltageCommand(double voltage){
+        return run(coroutine -> {
+            while(true){
+                io.setVoltage(voltage);
+                coroutine.yield();
+            }
+        }).named("Shooter SetVoltageCommand");
+    }
+
+    public Command setVelocityCommand(double velocity){
+        return run(coroutine -> {
+            while(true){
+                io.setVelocity(velocity);
+                coroutine.yield();
+            }
+        }).named("Shooter SetVelocityCommand");
+    }
 }
